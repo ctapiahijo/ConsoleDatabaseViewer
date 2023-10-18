@@ -7,16 +7,17 @@ namespace ConsoleDatabaseViewer
         public string? dbName;
         public string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         public string dbPath;
-
+        public string dynamicQuery = string.Empty;
         public DynamicDatabase() 
         {
 
             Console.Write("Enter the name for the new database: ");
             dbName = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(dbName))
+            while(string.IsNullOrEmpty(dbName))
             {
-                Console.WriteLine("Database name cannot be empty. Exiting.");
-                Environment.Exit(1);
+                Console.WriteLine("Error: The database name cannot be empty or null");
+                Console.Write("Enter the name for the new database: ");
+                dbName = Console.ReadLine();
             }
 
             dbPath = Path.Combine(desktopPath, $"{dbName}.db");
@@ -25,5 +26,7 @@ namespace ConsoleDatabaseViewer
         {
             optionsBuilder.UseSqlite($"Data Source = {dbPath}");
         }
+
+
     }
 }
