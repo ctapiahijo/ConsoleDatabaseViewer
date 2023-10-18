@@ -1,8 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.Net.WebSockets;
-using System.Runtime.CompilerServices;
-using System.Xml.Linq;
+﻿
+
+using Microsoft.EntityFrameworkCore;
+using System.Text;
 
 namespace ConsoleDatabaseViewer
 {
@@ -15,7 +14,7 @@ namespace ConsoleDatabaseViewer
             using (var context = new DynamicDatabase())
             {
                 context.Database.EnsureCreated();
-                Console.WriteLine($"Database '{context.dbName}' has been created on the desktop.");
+                Console.WriteLine($"Database '{context.dbName}' has been created.");
 
                 int numberOfTables;
                 if (TryGetIntegerInput("How many tables would you like to add?", out numberOfTables))
@@ -38,66 +37,97 @@ namespace ConsoleDatabaseViewer
                         int numberOfColumns;
                         if (TryGetIntegerInput($"How many columns would you like to add to table: {table}?", out numberOfColumns))
                         {
-                            List<string> columnNames = new List<string>();
+                            List<(string, string)> columnNames = new List<(string, string)>();
 
                             for (int i = 0; i < numberOfColumns; i++)
                             {
                                 string columnName = GetStringInput($"Enter the name for column {i + 1}:");
-                                columnNames.Add(columnName);
+                                string columnType;
+                                Console.WriteLine($"Select type for column {i + 1} for table {table} (\nPress 1 for NULL\nPress 2 for INTEGER\nPress 3 for REAL\nPress 4 for TEXT\nPress 5 for BLOB\n");
+                                string UserInput = Console.ReadLine();
+                                switch (UserInput)
+                                {
+                                    case "1":
+                                        columnType = "NULL";
+                                        break;
+                                    case "2":
+                                        columnType = "INTEGER";
+                                        break;
+                                    case "3":
+                                        columnType = "REAL";
+                                        break;
+                                    case "4":
+                                        columnType = "TEXT";
+                                        break;
+                                    case "5":
+                                        columnType = "BLOB";
+                                        break;
+                                    default:
+                                        columnType = "INTEGER";
+                                        break;
+                                }
+                                
+
+                                columnNames.Add((columnName, columnType));
                             }
 
                             DynamicTable.columnNames[table] = columnNames;
+
+                            foreach (var table_x in DynamicTable.columnNames)
+                            {
+                                string tableName = table_x.Key;
+                                List<(string, string)> columnList = table_x.Value;
+
+                                var createTableSql = new StringBuilder();
+                                createTableSql.AppendFormat("CREATE TABLE {0} (", tableName);
+
+                                foreach (var column in columnList)
+                                {
+                                    createTableSql.AppendFormat("{0} {1}, ", column.Item1, column.Item2);
+                                }
+
+                                createTableSql.Remove(createTableSql.Length - 2, 2); // Remove the trailing comma and space
+                                createTableSql.Append(");");
+
+                                // Execute the SQL command to create the table
+                                context.Database.ExecuteSqlRaw(createTableSql.ToString());
+                            }
+
                         }
                     }
-
-                    // Display tables and columns
-                    Console.WriteLine("Tables and Columns overview");
-                    Console.WriteLine("----------------------------");
-
-                    foreach (var kvp in DynamicTable.columnNames)
-                    {
-                        string tableName = kvp.Key;
-                        List<string> columnList = kvp.Value;
-
-                        Console.WriteLine($"Table Name: {tableName}");
-
-                        foreach (string columnName in columnList)
-                        {
-                            Console.WriteLine($"Column Name: {columnName}");
-                        }
-
-                        Console.WriteLine("----------------------------");
-                    }
+                   
                 }
             }
         }
-        static bool TryGetIntegerInput(string prompt, out int result)
-        {
-            Console.Write($"{prompt}: ");
-            if (int.TryParse(Console.ReadLine(), out result))
-            {
-                return true;
-            }
-            else
-            {
-                Console.WriteLine("Invalid input. Please enter a valid integer.");
-                return false;
-            }
-        }
-        static string GetStringInput(string prompt)
-        {
-            string? input;
-            do
+            static bool TryGetIntegerInput(string prompt, out int result)
             {
                 Console.Write($"{prompt}: ");
-                input = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(input))
+                if (int.TryParse(Console.ReadLine(), out result))
                 {
-                    Console.WriteLine("Error: The input cannot be empty or null");
+                    return true;
                 }
-            } while (string.IsNullOrWhiteSpace(input));
+                else
+                {
+                    Console.WriteLine("Invalid input. Please enter a valid integer.");
+                    return false;
+                }
+            }
+            static string GetStringInput(string prompt)
+            {
+                string? input;
+                do
+                {
+                    Console.Write($"{prompt}: ");
+                    input = Console.ReadLine();
+                    if (string.IsNullOrWhiteSpace(input))
+                    {
+                        Console.WriteLine("Error: The input cannot be empty or null");
+                    }
+                } while (string.IsNullOrWhiteSpace(input));
 
-            return input;
-        }
+                return input;
+            }
+        
     }
-}
+        
+}    

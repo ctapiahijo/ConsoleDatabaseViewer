@@ -11,6 +11,6 @@ namespace ConsoleDatabaseViewer
     {
         public static List<string> tableNames = new List<string>();
         public static int numberofcolumns {  get; set; }
-        public static Dictionary<string, List<string>> columnNames = new Dictionary<string, List<string>>();
+        public static Dictionary<string, List<(string, string)>> columnNames = new Dictionary<string, List<(string, string)>>();
     }
 }

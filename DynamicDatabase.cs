@@ -21,6 +21,7 @@ namespace ConsoleDatabaseViewer
             }
 
             dbPath = Path.Combine(desktopPath, $"{dbName}.db");
+            Database.Migrate();
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -32,6 +33,24 @@ namespace ConsoleDatabaseViewer
             Console.WriteLine("------------------------------");
             Console.WriteLine("|  Console Database Viewer   |");
             Console.WriteLine("------------------------------");
+        }
+        public static void ShowTablesAndColumns()
+        {
+            
+            Console.WriteLine("Tables and Columns overview");
+            Console.WriteLine("----------------------------");
+            foreach (var kvp in DynamicTable.columnNames)
+            {
+                string tableName = kvp.Key;
+                List<(string, string)> columnList = kvp.Value;
+
+                Console.WriteLine($"Table Name: {tableName}");
+                for (int i = 0; i < columnList.Count; i++)
+                {
+                    Console.WriteLine($"Column {i + 1} Name: {columnList[i].Item1}, Type: {columnList[i].Item2}");
+                }
+                Console.WriteLine("----------------------------");
+            }
         }
     }
 }
