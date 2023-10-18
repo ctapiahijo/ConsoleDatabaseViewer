@@ -8,58 +8,52 @@ namespace ConsoleDatabaseViewer
 {
     internal class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
-            await Console.Out.WriteLineAsync("------------------------------");
-            await Console.Out.WriteLineAsync("|  Console Database Viewer   |");
-            await Console.Out.WriteLineAsync("------------------------------");
+            DynamicDatabase.Welcome();
 
             using (var context = new DynamicDatabase())
             {
                 context.Database.EnsureCreated();
                 Console.WriteLine($"Database '{context.dbName}' has been created on the desktop.");
-                await Console.Out.WriteLineAsync($"How many tables would you like to add to {context.dbName}?");
-                if(int.TryParse(Console.ReadLine(), out int numberoftables))
+
+                int numberOfTables;
+                if (TryGetIntegerInput("How many tables would you like to add?", out numberOfTables))
                 {
-                    string tablename;
-                    for (int i = 0; i < numberoftables; i++)
+                    for (int i = 0; i < numberOfTables; i++)
                     {
-                            await Console.Out.WriteAsync($"Enter the name for table {i + 1}: ");
-                            tablename = Console.ReadLine();
-                        while(string.IsNullOrEmpty(tablename))
-                        {
-                            await Console.Out.WriteAsync("Error: The table name cannot be empty or null\n");
-                            await Console.Out.WriteAsync($"Enter the name for table {i + 1}: ");
-                            tablename = Console.ReadLine();
-                        }
-                        DynamicTable.tableNames.Add(tablename);
+                        string tableName = GetStringInput($"Enter the name for table {i + 1}");
+                        DynamicTable.tableNames.Add(tableName);
                     }
 
-                    await Console.Out.WriteLineAsync($"{context.dbName}'s tables:\n");
-                    for(int i = 0; i < numberoftables; ++i)
+                    Console.WriteLine($"{context.dbName}'s tables:\n");
+
+                    for (int i = 0; i < numberOfTables; i++)
                     {
-                        await Console.Out.WriteLineAsync($"{i + 1}:{ DynamicTable.tableNames[i]}");
-                        await Console.Out.WriteLineAsync("--------------------------------------");
+                        Console.WriteLine($"{i + 1}: {DynamicTable.tableNames[i]}\n");
                     }
-                    int numberofcolumns = 0;
-                    List<string> columnNames = new List<string>();
+
                     foreach (var table in DynamicTable.tableNames)
                     {
-                        await Console.Out.WriteLineAsync($"How many columns would you like to add to table: {table}: ");
-                        numberofcolumns = int.Parse(Console.ReadLine());
-                        await Console.Out.WriteLineAsync($"Please enter the name of the column for table: {table}: (Please be aware that the first column will be the primary key)");
-                        for (int i = 0; i < numberofcolumns; ++i)
+                        int numberOfColumns;
+                        if (TryGetIntegerInput($"How many columns would you like to add to table: {table}?", out numberOfColumns))
                         {
-                            await Console.Out.WriteAsync($"Column {i + 1}:");
-                            string value = Console.ReadLine();
-                            columnNames.Add(value);
+                            List<string> columnNames = new List<string>();
+
+                            for (int i = 0; i < numberOfColumns; i++)
+                            {
+                                string columnName = GetStringInput($"Enter the name for column {i + 1}:");
+                                columnNames.Add(columnName);
+                            }
+
+                            DynamicTable.columnNames[table] = columnNames;
                         }
-                        DynamicTable.columnNames[table] = columnNames;
                     }
 
+                    // Display tables and columns
+                    Console.WriteLine("Tables and Columns overview");
+                    Console.WriteLine("----------------------------");
 
-                    await Console.Out.WriteLineAsync($"Tables and Columns overview");
-                    await Console.Out.WriteLineAsync("----------------------------");
                     foreach (var kvp in DynamicTable.columnNames)
                     {
                         string tableName = kvp.Key;
@@ -72,10 +66,38 @@ namespace ConsoleDatabaseViewer
                             Console.WriteLine($"Column Name: {columnName}");
                         }
 
-                        Console.WriteLine("--------------------------");
+                        Console.WriteLine("----------------------------");
                     }
                 }
             }
+        }
+        static bool TryGetIntegerInput(string prompt, out int result)
+        {
+            Console.Write($"{prompt}: ");
+            if (int.TryParse(Console.ReadLine(), out result))
+            {
+                return true;
+            }
+            else
+            {
+                Console.WriteLine("Invalid input. Please enter a valid integer.");
+                return false;
+            }
+        }
+        static string GetStringInput(string prompt)
+        {
+            string? input;
+            do
+            {
+                Console.Write($"{prompt}: ");
+                input = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(input))
+                {
+                    Console.WriteLine("Error: The input cannot be empty or null");
+                }
+            } while (string.IsNullOrWhiteSpace(input));
+
+            return input;
         }
     }
 }

@@ -27,6 +27,11 @@ namespace ConsoleDatabaseViewer
             optionsBuilder.UseSqlite($"Data Source = {dbPath}");
         }
 
-
+        public static void Welcome()
+        {
+            Console.WriteLine("------------------------------");
+            Console.WriteLine("|  Console Database Viewer   |");
+            Console.WriteLine("------------------------------");
+        }
     }
 }
