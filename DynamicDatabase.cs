@@ -9,16 +9,7 @@ namespace ConsoleDatabaseViewer
         public string dbPath;
         public DynamicDatabase() 
         {
-
-            Console.Write("Enter the name for the new database: ");
-            dbName = Console.ReadLine();
-            while(string.IsNullOrEmpty(dbName))
-            {
-                Console.WriteLine("Error: The database name cannot be empty or null");
-                Console.Write("Enter the name for the new database: ");
-                dbName = Console.ReadLine();
-            }
-
+            dbName = GetDatabaseName();
             dbPath = Path.Combine(desktopPath, $"{dbName}.db");
             Database.Migrate();
         }
@@ -27,6 +18,19 @@ namespace ConsoleDatabaseViewer
             optionsBuilder.UseSqlite($"Data Source = {dbPath}");
         }
 
+        public string GetDatabaseName()
+        {
+            Console.Write("Enter the name for the new database: ");
+            this.dbName = Console.ReadLine();
+            while (string.IsNullOrEmpty(dbName))
+            {
+                Console.WriteLine("Error: The database name cannot be empty or null");
+                Console.Write("Enter the name for the new database: ");
+                dbName = Console.ReadLine();
+            }
+
+            return this.dbName;
+        }
         public static void Welcome()
         {
             Console.WriteLine("------------------------------");
