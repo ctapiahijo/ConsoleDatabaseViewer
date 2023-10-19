@@ -79,17 +79,17 @@ namespace ConsoleDatabaseViewer
                                 List<(string, string)> columnList = table_x.Value;
 
                                 var createTableSql = new StringBuilder();
-                                createTableSql.AppendFormat("CREATE TABLE {0} (", tableName);
+                                createTableSql.Append($"CREATE TABLE {tableName} (");
 
                                 foreach (var column in columnList)
                                 {
-                                    createTableSql.AppendFormat("{0} {1}, ", column.Item1, column.Item2);
+                                    createTableSql.Append($"{column.Item1} {column.Item2}, ");
                                 }
 
                                 createTableSql.Remove(createTableSql.Length - 2, 2); // Remove the trailing comma and space
                                 createTableSql.Append(");");
 
-                                // Execute the SQL command to create the table
+                               
                                 context.Database.ExecuteSqlRaw(createTableSql.ToString());
                             }
 
