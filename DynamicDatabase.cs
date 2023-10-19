@@ -7,7 +7,6 @@ namespace ConsoleDatabaseViewer
         public string? dbName;
         public string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         public string dbPath;
-        public string dynamicQuery = string.Empty;
         public DynamicDatabase() 
         {
 
